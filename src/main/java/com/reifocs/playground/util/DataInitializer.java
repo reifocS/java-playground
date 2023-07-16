@@ -6,8 +6,9 @@ import com.reifocs.playground.repository.AuthorRepository;
 import com.reifocs.playground.repository.BookRepository;
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Random;
 import java.util.stream.IntStream;
 
 @Component
@@ -21,7 +22,6 @@ public class DataInitializer {
     }
 
     @PostConstruct
-    @Transactional
     public void initializeData() {
         var authors = IntStream.range(0, 1000).mapToObj(i -> {
             var author = new Author();
@@ -32,10 +32,21 @@ public class DataInitializer {
         var books = IntStream.range(0, 1000).mapToObj(i -> {
             var book = new Book();
             book.setTitle("book_" + i);
-            book.addAuthor(authorSaved.get(i));
             return book;
         }).toList();
         var booksSaved = bookRepository.saveAll(books);
+
+        for (Book book : booksSaved) {
+            book.addAuthor(getRandom(authorSaved));
+            book.addAuthor(getRandom(authorSaved));
+            book.addAuthor(getRandom(authorSaved));
+        }
+
+        bookRepository.saveAll(booksSaved);
     }
 
+    public static <T> T getRandom(List<T> array) {
+        int rnd = new Random().nextInt(array.size());
+        return array.get(rnd);
+    }
 }

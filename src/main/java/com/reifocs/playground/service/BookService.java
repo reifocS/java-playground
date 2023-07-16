@@ -44,7 +44,8 @@ public class BookService {
     }
 
     public BookDto findById(Long id) {
-        return bookMapper.toDto(repository.findById(id).orElseThrow(() -> new HttpClientErrorException(HttpStatus.NOT_FOUND)));
+        var book = repository.findById(id).orElseThrow(() -> new HttpClientErrorException(HttpStatus.NOT_FOUND));
+        return bookMapper.toDto(book);
     }
 
     public Page<BookDto> findByCondition(BookDto bookDto, Pageable pageable) {

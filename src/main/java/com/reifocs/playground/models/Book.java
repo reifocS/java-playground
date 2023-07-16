@@ -10,18 +10,21 @@ import java.util.Set;
 
 @Entity
 @Table(name = "book")
-@BatchSize(size = 50)
 public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "book_seq")
-    @SequenceGenerator(name = "book_seq", sequenceName = "book_seq", allocationSize = 50)
+    @SequenceGenerator(name = "book_seq", sequenceName = "book_seq")
     @Column(name = "id", nullable = false)
     private Long id;
 
     @Column(name = "title")
     private String title;
 
-    @OneToMany(mappedBy = "book", orphanRemoval = true)
+    @OneToMany(mappedBy = "book", orphanRemoval = true, cascade = CascadeType.ALL)
+    @BatchSize(size = 50)
+    // With batch fetching, you have (M/N + 1) database roundtrips,
+    // where M is the number of children entities in your uninitialized to-many association
+    // and N is the batch size.
     private Set<Author> authors = new LinkedHashSet<>();
 
     public Set<Author> getAuthors() {
