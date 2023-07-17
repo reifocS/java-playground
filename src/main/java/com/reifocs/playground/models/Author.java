@@ -5,7 +5,7 @@ import org.hibernate.annotations.BatchSize;
 
 @Entity
 @Table(name = "author")
-@BatchSize(size = 50)
+@BatchSize(size = 25)
 public class Author {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "author_seq")

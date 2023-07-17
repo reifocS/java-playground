@@ -21,7 +21,7 @@ public class Book {
     private String title;
 
     @OneToMany(mappedBy = "book", orphanRemoval = true, cascade = CascadeType.ALL)
-    @BatchSize(size = 50)
+    @BatchSize(size = 25)
     // With batch fetching, you have (M/N + 1) database roundtrips,
     // where M is the number of children entities in your uninitialized to-many association
     // and N is the batch size.
