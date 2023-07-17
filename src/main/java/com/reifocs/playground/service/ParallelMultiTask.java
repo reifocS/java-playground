@@ -29,7 +29,7 @@ public class ParallelMultiTask implements SeekFunction {
                 doneSignal.countDown();
                 if (data.isPresent()) {
                     result.set(data);
-                    for (int i = 0; i < LIBRARY_URLS.size(); i++) {
+                    while (doneSignal.getCount() > 0) {
                         doneSignal.countDown();
                     }
                 }
