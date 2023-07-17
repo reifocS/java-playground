@@ -1,8 +1,9 @@
 package com.reifocs.playground.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -10,16 +11,15 @@ import org.springframework.web.client.RestTemplate;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
-
-import static com.reifocs.playground.service.PortalService.LIBRARY_URLS;
 
 @Service
 public class RestBean {
+
+    Logger logger = LoggerFactory.getLogger(RestBean.class);
+
     public Optional<String> seekInLibrary(int id, String libraryUrl) {
         String url = libraryUrl + id;
+        logger.info(url);
         Optional<String> empty = Optional.empty();
         try {
             ResponseEntity<String> response = new RestTemplate().getForEntity(url, String.class);
@@ -34,30 +34,13 @@ public class RestBean {
         return empty;
     }
 
-    @Async
-    CompletableFuture<Optional<String>> seekInLibraryAsync(int id, String libraryUrl) {
-        return CompletableFuture.completedFuture(seekInLibrary(id, libraryUrl));
-    }
-
-    @Async
-    void statefulAsync(int id, CountDownLatch doneSignal, AtomicReference<Optional<String>> result, String libraryUrl) {
-        var data = seekInLibrary(id, libraryUrl);
-        doneSignal.countDown();
-        if (data.isPresent()) {
-            result.set(data);
-            for (int i = 0; i < LIBRARY_URLS.size(); i++) {
-                doneSignal.countDown();
-            }
-        }
-    }
-
     public static <T> CompletableFuture<List<T>> all(List<CompletableFuture<T>> futures) {
         CompletableFuture[] cfs = futures.toArray(new CompletableFuture[0]);
 
         return CompletableFuture.allOf(cfs)
                 .thenApply(ignored -> futures.stream()
                         .map(CompletableFuture::join)
-                        .collect(Collectors.toList())
+                        .toList()
                 );
     }
 }

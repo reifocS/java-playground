@@ -3,6 +3,7 @@ package com.reifocs.playground.service;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -23,7 +24,17 @@ public class ParallelMultiTask implements SeekFunction {
         final CountDownLatch doneSignal = new CountDownLatch(LIBRARY_URLS.size());
         final AtomicReference<Optional<String>> result = new AtomicReference<>();
         for (String libraryUrl : LIBRARY_URLS) {
-            restBean.statefulAsync(id, doneSignal, result, libraryUrl);
+            CompletableFuture.supplyAsync(() -> {
+                var data = restBean.seekInLibrary(id, libraryUrl);
+                doneSignal.countDown();
+                if (data.isPresent()) {
+                    result.set(data);
+                    for (int i = 0; i < LIBRARY_URLS.size(); i++) {
+                        doneSignal.countDown();
+                    }
+                }
+                return data;
+            });
         }
         try {
             doneSignal.await();
