@@ -23,11 +23,13 @@ public class ParallelMultiTask implements SeekFunction {
     public Optional<String> apply(int id) {
         final CountDownLatch doneSignal = new CountDownLatch(LIBRARY_URLS.size());
         final AtomicReference<Optional<String>> result = new AtomicReference<>();
+
         for (String libraryUrl : LIBRARY_URLS) {
             CompletableFuture.supplyAsync(() -> {
                 var data = restBean.seekInLibrary(id, libraryUrl);
-                doneSignal.countDown();
-                if (data.isPresent()) {
+                if (data.isEmpty())
+                    doneSignal.countDown();
+                else {
                     result.set(data);
                     while (doneSignal.getCount() > 0) {
                         doneSignal.countDown();

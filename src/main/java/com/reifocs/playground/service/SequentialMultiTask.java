@@ -27,36 +27,32 @@ public class SequentialMultiTask implements SeekFunction {
         final ExecutorService executorService = Executors.newCachedThreadPool();
 
         final AtomicReference<Optional<String>> result = new AtomicReference<>();
-
-        for (String libraryUrl : LIBRARY_URLS) {
-
-            executorService.submit(() -> {
-
-                final Optional<String> ressource =
-                        restBean.seekInLibrary(id, libraryUrl);
-
-
-                if (ressource.isEmpty()) {
-                    countDownLatch.countDown();
-                } else {
-                    result.set(ressource);
-
-                    while (countDownLatch.getCount() > 0) {
-                        countDownLatch.countDown();
-                    }
-                }
-
-            });
-        }
-
-
         try {
+            for (String libraryUrl : LIBRARY_URLS) {
+                executorService.submit(() -> {
+
+                    final Optional<String> ressource =
+                            restBean.seekInLibrary(id, libraryUrl);
+
+
+                    if (ressource.isEmpty()) {
+                        countDownLatch.countDown();
+                    } else {
+                        result.set(ressource);
+
+                        while (countDownLatch.getCount() > 0) {
+                            countDownLatch.countDown();
+                        }
+                    }
+
+                });
+            }
             countDownLatch.await();
         } catch (InterruptedException e) {
             e.printStackTrace();
+        } finally {
+            executorService.shutdown();
         }
-
-        executorService.shutdown();
         return result.get();
     }
 

@@ -8,8 +8,6 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -47,14 +45,4 @@ public class ParallelAsync implements SeekFunction {
                 .toList();
         return fullFillPromise(anyMatch(futures, Optional::isPresent));
     }
-
-    public static <T> T fullFillPromise(Future<T> prom) {
-        try {
-            return prom.get();
-        } catch (InterruptedException | ExecutionException e) {
-            System.out.println("Exception promesse - " + e.getMessage());
-            return null;
-        }
-    }
-
 }

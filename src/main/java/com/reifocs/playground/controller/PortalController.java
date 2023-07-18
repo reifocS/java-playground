@@ -1,6 +1,7 @@
 package com.reifocs.playground.controller;
 
 import com.reifocs.playground.service.PortalService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -26,7 +27,7 @@ public class PortalController {
     }
 
     @PostMapping("/algo/{algo}")
-    public void seekBook(@PathVariable String algo) {
-        this.portalService.switchAlgorithm(algo);
+    public ResponseEntity<String> seekBook(@PathVariable String algo) {
+        return ResponseEntity.ok(this.portalService.switchAlgorithm(algo));
     }
 }
