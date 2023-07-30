@@ -59,16 +59,20 @@ public class DataInitializer {
 
     private void createTree() {
         TreeNode root = new TreeNode();
-        TreeNode child = new TreeNode();
-        root.addChildren(child);
-        for (int i = 0; i < 100; ++i) {
-            var node = new TreeNode();
-            child.addChildren(node);
-            for (int j = 0; j < 100; ++j) {
-                node.addChildren(new TreeNode());
-            }
+        for (int i = 0; i < 5; ++i) {
+            createChildren(root, 100);
         }
         treeNodeRepository.save(root);
+
+    }
+
+    public void createChildren(TreeNode node, int depth) {
+        if (depth == 0) {
+            return;
+        }
+        var newNode = new TreeNode();
+        node.addChildren(newNode);
+        createChildren(newNode, depth - 1);
     }
 
     public static <T> T getRandom(List<T> array) {

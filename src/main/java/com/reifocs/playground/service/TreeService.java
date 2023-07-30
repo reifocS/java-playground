@@ -1,5 +1,7 @@
 package com.reifocs.playground.service;
 
+import com.reifocs.playground.dto.TreeNodeDTO;
+import com.reifocs.playground.mapper.TreeNodeMapper;
 import com.reifocs.playground.models.TreeNode;
 import com.reifocs.playground.repository.TreeNodeRepository;
 import org.slf4j.Logger;
@@ -18,10 +20,12 @@ public class TreeService {
 
     Logger logger = LoggerFactory.getLogger(TreeService.class);
     private final TreeNodeRepository treeNodeRepository;
+    private final TreeNodeMapper treeNodeMapper;
 
-    public TreeService(SeekFunction seekFunction, BeanFactory beanFactory, TreeNodeRepository treeNodeRepository) {
+    public TreeService(SeekFunction seekFunction, BeanFactory beanFactory, TreeNodeRepository treeNodeRepository, TreeNodeMapper treeNodeMapper) {
 
         this.treeNodeRepository = treeNodeRepository;
+        this.treeNodeMapper = treeNodeMapper;
     }
 
     public void explorerGraphe(List<TreeNode> nodeList) {
@@ -47,8 +51,26 @@ public class TreeService {
 
     @Transactional
     public String dfs(long id) {
+        var tree = treeNodeRepository.findById(id).orElseThrow();
+        explorerGraphe(List.of(tree));
+        return "";
+    }
+
+    @Transactional
+    public String dfsWithEfficientBatching(long id) {
         var tree = treeNodeRepository.findTreeWithChildren(id);
         explorerGraphe(tree);
         return "";
+    }
+
+    @Transactional
+    public TreeNodeDTO findTreeNodeByIdWithCTE(long id) {
+        var tree = treeNodeRepository.findTreeWithChildren(id);
+        return treeNodeMapper.toDto(tree.parallelStream().filter(treeNode -> treeNode.getId().equals(id)).findAny().orElseThrow());
+    }
+
+    @Transactional
+    public TreeNodeDTO findTreeNodeById(long id) {
+        return treeNodeMapper.toDto(treeNodeRepository.findById(id).orElseThrow());
     }
 }

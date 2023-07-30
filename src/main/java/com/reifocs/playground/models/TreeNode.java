@@ -20,7 +20,7 @@ public class TreeNode {
     private TreeNode parent;
 
     @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @BatchSize(size = 1000)
+    @BatchSize(size = 100)
     private Set<TreeNode> children = new LinkedHashSet<>();
 
     // Getters and setters

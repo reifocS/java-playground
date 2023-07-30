@@ -1,5 +1,6 @@
 package com.reifocs.playground.controller;
 
+import com.reifocs.playground.dto.TreeNodeDTO;
 import com.reifocs.playground.service.PortalService;
 import com.reifocs.playground.service.TreeService;
 import org.springframework.http.ResponseEntity;
@@ -34,11 +35,24 @@ public class PortalController {
         return ResponseEntity.ok(this.portalService.switchAlgorithm(algo));
     }
 
-    @GetMapping("/tree/{id}")
+    @GetMapping("/dfs/{id}")
     public String depthFirstSearch(@PathVariable long id) {
         // Define a list of library server URLs
         // Iterate over the library server URLs and perform GET requests
         return treeService.dfs(id);
     }
 
+    @GetMapping("/tree/{id}")
+    public TreeNodeDTO findTreeNodeById(@PathVariable long id) {
+        // Define a list of library server URLs
+        // Iterate over the library server URLs and perform GET requests
+        return treeService.findTreeNodeByIdWithCTE(id);
+    }
+
+    @GetMapping("/dfs2/{id}")
+    public String depthFirstSearch2(@PathVariable long id) {
+        // Define a list of library server URLs
+        // Iterate over the library server URLs and perform GET requests
+        return treeService.dfsWithEfficientBatching(id);
+    }
 }
