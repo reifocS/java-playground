@@ -2,10 +2,8 @@ package com.reifocs.playground.util;
 
 import com.reifocs.playground.models.Author;
 import com.reifocs.playground.models.Book;
-import com.reifocs.playground.models.TreeNode;
 import com.reifocs.playground.repository.AuthorRepository;
 import com.reifocs.playground.repository.BookRepository;
-import com.reifocs.playground.repository.TreeNodeRepository;
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,20 +16,16 @@ import java.util.stream.IntStream;
 public class DataInitializer {
     private final AuthorRepository authorRepository;
     private final BookRepository bookRepository;
-    private final TreeNodeRepository treeNodeRepository;
 
-    public DataInitializer(AuthorRepository authorRepository, BookRepository bookRepository, TreeNodeRepository treeNodeRepository) {
+    public DataInitializer(AuthorRepository authorRepository, BookRepository bookRepository) {
         this.authorRepository = authorRepository;
         this.bookRepository = bookRepository;
-        this.treeNodeRepository = treeNodeRepository;
     }
 
     @PostConstruct
     @Transactional
     public void initializeData() {
-        //createBooks();
-
-        createTree();
+        createBooks();
     }
 
     private void createBooks() {
@@ -55,24 +49,6 @@ public class DataInitializer {
         }
 
         bookRepository.saveAll(booksSaved);
-    }
-
-    private void createTree() {
-        TreeNode root = new TreeNode();
-        for (int i = 0; i < 5; ++i) {
-            createChildren(root, 100);
-        }
-        treeNodeRepository.save(root);
-
-    }
-
-    public void createChildren(TreeNode node, int depth) {
-        if (depth == 0) {
-            return;
-        }
-        var newNode = new TreeNode();
-        node.addChildren(newNode);
-        createChildren(newNode, depth - 1);
     }
 
     public static <T> T getRandom(List<T> array) {
