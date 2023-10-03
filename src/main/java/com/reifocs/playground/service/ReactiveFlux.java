@@ -35,11 +35,6 @@ public class ReactiveFlux implements SeekFunction {
     }
 
     public Mono<String> findWithFlux(int id) {
-        Executor executor = Executors.newCachedThreadPool();
-        return Flux.fromIterable(LIBRARY_URLS)
-                .parallel() // Enable parallel processing
-                .runOn(Schedulers.fromExecutor(executor))
-                .flatMap(libraryUrl -> client.seekInLibrary(id, libraryUrl))
-                .sequential().next();
+        return LIBRARY_URLS.stream().map(library -> client.seekInLibrary(id, library)).findAny().orElseThrow();
     }
 }
