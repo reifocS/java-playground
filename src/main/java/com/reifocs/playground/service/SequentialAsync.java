@@ -5,6 +5,8 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import static com.reifocs.playground.service.PortalService.LIBRARY_URLS;
 import static com.reifocs.playground.service.RestBean.all;
@@ -19,9 +21,11 @@ public class SequentialAsync implements SeekFunction {
 
     @Override
     public Optional<String> apply(int id) {
+        Executor executor = Executors.newCachedThreadPool();
+
         var futures = LIBRARY_URLS
                 .stream()
-                .map(libraryUrl -> CompletableFuture.supplyAsync(() -> restBean.seekInLibrary(id, libraryUrl)))
+                .map(libraryUrl -> CompletableFuture.supplyAsync(() -> restBean.seekInLibrary(id, libraryUrl), executor))
                 .toList();
         try {
             var results = all(futures).get();
