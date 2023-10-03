@@ -13,7 +13,7 @@ public class ReactivePortalService {
 
 
     public Mono<String> getBook(int id) {
-        return seekFunction.findWithFlux(id);
+        return seekFunction.findById(id);
     }
 
 }

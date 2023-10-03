@@ -34,7 +34,9 @@ public class ReactiveFlux implements SeekFunction {
                 .sequential().blockFirst();
     }
 
-    public Mono<String> findWithFlux(int id) {
-        return LIBRARY_URLS.stream().map(library -> client.seekInLibrary(id, library)).findAny().orElseThrow();
+    public Mono<String> findById(int id) {
+        return Flux.fromIterable(LIBRARY_URLS)
+                .flatMap(libraryUrl ->
+                        client.seekInLibrary(id, libraryUrl)).filter(b -> !b.isEmpty()).single();
     }
 }
