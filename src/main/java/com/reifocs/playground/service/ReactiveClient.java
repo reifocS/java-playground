@@ -14,17 +14,16 @@ import java.util.Optional;
 
 @Service
 public class ReactiveClient {
-
+    private final WebClient webClient;
     Logger logger = LoggerFactory.getLogger(ReactiveClient.class);
 
-    private final WebClient webClient;
-
     public ReactiveClient(WebClient.Builder webClientBuilder) {
-        this.webClient = webClientBuilder.baseUrl("").build(); // Set your base URL here
+        this.webClient = webClientBuilder.baseUrl("").build();
     }
 
     public Mono<String> seekInLibrary(int id, String libraryUrl) {
         String url = libraryUrl + id;
+        logger.info(url);
         return webClient.get()
                 .uri(url)
                 .retrieve()

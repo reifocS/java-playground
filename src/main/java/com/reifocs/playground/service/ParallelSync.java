@@ -21,5 +21,6 @@ public class ParallelSync implements SeekFunction {
                 .filter(Optional::isPresent)
                 .findFirst()
                 .orElse(Optional.of("Book not found"));
+
     }
 }

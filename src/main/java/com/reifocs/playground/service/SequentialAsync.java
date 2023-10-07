@@ -2,6 +2,7 @@ package com.reifocs.playground.service;
 
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -21,17 +22,13 @@ public class SequentialAsync implements SeekFunction {
 
     @Override
     public Optional<String> apply(int id) {
-        Executor executor = Executors.newCachedThreadPool();
-
-        var futures = LIBRARY_URLS
+        return LIBRARY_URLS
                 .stream()
-                .map(libraryUrl -> CompletableFuture.supplyAsync(() -> restBean.seekInLibrary(id, libraryUrl), executor))
-                .toList();
-        try {
-            var results = all(futures).get();
-            return results.stream().filter(Optional::isPresent).findFirst().orElse(Optional.empty());
-        } catch (InterruptedException | ExecutionException e) {
-            throw new RuntimeException(e);
-        }
+                .map(libraryUrl -> CompletableFuture.supplyAsync(() -> restBean.seekInLibrary(id, libraryUrl), Runnable::run))
+                .map(this::fullFillPromise)
+                .filter(Objects::nonNull)
+                .filter(Optional::isPresent)
+                .findAny()
+                .orElse(Optional.empty());
     }
 }

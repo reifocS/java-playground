@@ -6,7 +6,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -38,10 +39,9 @@ public class ParallelAsync implements SeekFunction {
 
     @Override
     public Optional<String> apply(int id) {
-        Executor executor = Executors.newCachedThreadPool();
         var futures = LIBRARY_URLS
                 .parallelStream()
-                .map(libraryUrl -> CompletableFuture.supplyAsync(() -> restBean.seekInLibrary(id, libraryUrl), executor))
+                .map(libraryUrl -> CompletableFuture.supplyAsync(() -> restBean.seekInLibrary(id, libraryUrl)))
                 .toList();
         return fullFillPromise(anyMatch(futures, Optional::isPresent));
     }
