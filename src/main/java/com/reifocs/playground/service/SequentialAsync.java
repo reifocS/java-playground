@@ -1,18 +1,17 @@
 package com.reifocs.playground.service;
 
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 import static com.reifocs.playground.service.PortalService.LIBRARY_URLS;
 import static com.reifocs.playground.service.RestBean.all;
 
 @Service("SequentialAsync")
+@Primary
 public class SequentialAsync implements SeekFunction {
     private final RestBean restBean;
 
@@ -22,13 +21,11 @@ public class SequentialAsync implements SeekFunction {
 
     @Override
     public Optional<String> apply(int id) {
-        return LIBRARY_URLS
+        var futures = LIBRARY_URLS
                 .stream()
-                .map(libraryUrl -> CompletableFuture.supplyAsync(() -> restBean.seekInLibrary(id, libraryUrl), Runnable::run))
-                .map(this::fullFillPromise)
-                .filter(Objects::nonNull)
-                .filter(Optional::isPresent)
-                .findAny()
-                .orElse(Optional.empty());
+                .map(libraryUrl -> restBean.seekInLibraryAsync(id, libraryUrl))
+                .toList();
+        var results = all(futures).join();
+        return results.stream().filter(Optional::isPresent).findAny().orElse(Optional.empty());
     }
 }

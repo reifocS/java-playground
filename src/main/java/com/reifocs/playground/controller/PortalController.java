@@ -21,7 +21,6 @@ public class PortalController {
         // Define a list of library server URLs
         // Iterate over the library server URLs and perform GET requests
         Optional<String> dest = portalService.getBook(id);
-        // Book not found in any library
         assert dest.isPresent();
         return dest.get();
     }

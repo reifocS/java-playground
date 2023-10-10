@@ -14,7 +14,6 @@ import java.util.function.Predicate;
 import static com.reifocs.playground.service.PortalService.LIBRARY_URLS;
 
 @Service("ParallelAsync")
-@Primary
 public class ParallelAsync implements SeekFunction {
 
     private final RestBean restBean;
